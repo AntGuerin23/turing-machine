@@ -1,8 +1,8 @@
-package head
+package machine
 
 import "errors"
 
-// Head is the main part of the machine, who navigates the head, reads and write
+// Head is the main part of the machine, who navigates the machine, reads and write
 type Head struct {
 	Tape           []string //Important : Must be initialized with a minimum length of 1
 	cursorPosition int
@@ -19,7 +19,7 @@ func (head *Head) MoveLeft() error {
 
 func (head *Head) MoveRight() {
 	if head.cursorPosition+1 >= len(head.Tape) {
-		head.extendTape(10)
+		head.extendTape(1)
 	}
 	head.cursorPosition += 1
 }
