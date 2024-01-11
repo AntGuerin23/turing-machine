@@ -5,16 +5,18 @@ import (
 )
 
 func main() {
+	//TODO : Replace with a file read of the machine's configs
 	configs := make(map[byte]machinePkg.Configuration, 10)
-	op := machinePkg.Operation{Function: b}
-	operations := make([]machinePkg.Operation, 1)
-	operations = append(operations, op)
+	op := append(make([]machinePkg.Operation, 1), machinePkg.Operation{Function: b})
+	operations := make(map[string][]machinePkg.Operation, 1)
+	operations[""] = op
 	config := machinePkg.Configuration{Operations: operations, NextConfiguration: 0}
 	configs['b'] = config
 	machine := machinePkg.Machine{Configs: configs}
 	machine.Start()
 }
 
+// TODO : Remove this
 func b(machine *machinePkg.Machine) {
 	machine.Head.MoveRight()
 	machine.Head.Write("5")

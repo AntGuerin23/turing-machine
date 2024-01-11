@@ -11,7 +11,7 @@ type Operation struct {
 }
 
 type Configuration struct {
-	Operations        []Operation
+	Operations        map[string][]Operation
 	NextConfiguration byte
 }
 
@@ -38,20 +38,41 @@ func (machine *Machine) run() {
 			break
 		}
 		config := machine.Configs[machine.currentConfig]
-		machine.currentConfig = machine.runConfiguration(config)
+		nextConfig, err := machine.runConfiguration(config)
+		if err == nil {
+			machine.currentConfig = nextConfig
+		} else {
+			fmt.Println(err)
+			return
+		}
 		time.Sleep(time.Second)
 	}
 }
 
-func (machine *Machine) runConfiguration(config Configuration) byte {
-	//TODO : Run different operations based on machine.Read (symbol, Any, None)
-	// Make operations a map of ([Any, None, ...], []Operation)
-	for _, op := range config.Operations {
+func (machine *Machine) runConfiguration(config Configuration) (byte, error) {
+	//TODO : Refactor
+
+	var operations []Operation
+	symbol := machine.Head.Read()
+	hasSymbol := symbol != ""
+
+	if hasSymbol {
+		operations = config.Operations[symbol]
+		if operations == nil {
+			operations = config.Operations["Any"]
+		}
+	} else {
+		operations = config.Operations["None"]
+	}
+	if operations == nil {
+		operations = config.Operations[""]
+	}
+	for _, op := range operations {
 		if op.Function != nil {
 			op.Function(machine)
 		}
 	}
-	return config.NextConfiguration
+	return config.NextConfiguration, nil
 }
 
 // Prints a snapshot of the machine
