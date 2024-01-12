@@ -4,7 +4,7 @@ import "errors"
 
 // Head is the main part of the machine, who navigates the machine, reads and write
 type Head struct {
-	Tape           []string //Important : Must be initialized with a minimum length of 1
+	Tape           []string
 	cursorPosition int
 }
 

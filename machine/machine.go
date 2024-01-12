@@ -5,16 +5,6 @@ import (
 	"time"
 )
 
-// TODO : Find a way to move operation and configuration
-type Operation struct {
-	Function func(*Machine)
-}
-
-type Configuration struct {
-	Operations        map[string][]Operation
-	NextConfiguration byte
-}
-
 type Machine struct {
 	Configs       map[byte]Configuration
 	Head          Head //TODO : Make private
@@ -33,24 +23,29 @@ func (machine *Machine) initialize() {
 
 func (machine *Machine) run() {
 	for {
-		machine.printCompleteConfiguration()
+		machine.printState()
 		if machine.currentConfig == 0 {
 			break
 		}
 		config := machine.Configs[machine.currentConfig]
-		nextConfig, err := machine.runConfiguration(config)
-		if err == nil {
-			machine.currentConfig = nextConfig
-		} else {
-			fmt.Println(err)
-			return
-		}
-		time.Sleep(time.Second)
+		nextConfig := machine.runConfiguration(config)
+		machine.currentConfig = nextConfig
+		time.Sleep(time.Second) //Here for debugging
 	}
 }
 
-func (machine *Machine) runConfiguration(config Configuration) (byte, error) {
-	//TODO : Refactor
+func (machine *Machine) runConfiguration(config Configuration) byte {
+	operations := machine.getOperationsBranchFromCurrentSymbol(config) // A config can have multiple arrays of operations, they're chosen using the current symbol, hence the branching
+	machine.runOperations(operations)
+	return config.NextConfiguration
+}
+
+func (machine *Machine) getOperationsBranchFromCurrentSymbol(config Configuration) []Operation {
+	//A normal Turing machine configuration can check for
+	//A particular written symbol (1, 0, etc)
+	//"Any" (Any symbol),
+	//"None" (Nothing written),
+	//Nothing or "" (no branching)
 
 	var operations []Operation
 	symbol := machine.Head.Read()
@@ -67,19 +62,22 @@ func (machine *Machine) runConfiguration(config Configuration) (byte, error) {
 	if operations == nil {
 		operations = config.Operations[""]
 	}
+	return operations
+}
+
+func (machine *Machine) runOperations(operations []Operation) {
 	for _, op := range operations {
 		if op.Function != nil {
 			op.Function(machine)
 		}
 	}
-	return config.NextConfiguration, nil
 }
 
 // Prints a snapshot of the machine
-func (machine *Machine) printCompleteConfiguration() {
+func (machine *Machine) printState() {
 	configString := string(machine.currentConfig)
 	if machine.currentConfig == 0 {
-		configString = "Ending"
+		configString = "End"
 	}
 	fmt.Printf("(config: %v) %v:%v \n", configString, machine.Head.Read(), machine.Head.Tape)
 }
