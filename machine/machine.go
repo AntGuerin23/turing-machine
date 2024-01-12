@@ -6,9 +6,9 @@ import (
 )
 
 type Machine struct {
-	Configs       map[byte]Configuration
+	Configs       map[rune]Configuration
 	Head          Head //TODO : Make private
-	currentConfig byte
+	currentConfig rune
 }
 
 func (machine *Machine) Start() {
@@ -18,7 +18,7 @@ func (machine *Machine) Start() {
 
 func (machine *Machine) initialize() {
 	machine.currentConfig = 'b' //Begin
-	machine.Head = Head{Tape: make([]string, 1)}
+	machine.Head = Head{Tape: make([]rune, 1)}
 }
 
 func (machine *Machine) run() {
@@ -34,7 +34,7 @@ func (machine *Machine) run() {
 	}
 }
 
-func (machine *Machine) runConfiguration(config Configuration) byte {
+func (machine *Machine) runConfiguration(config Configuration) rune {
 	operations := machine.getOperationsBranchFromCurrentSymbol(config) // A config can have multiple arrays of operations, they're chosen using the current symbol, hence the branching
 	machine.runOperations(operations)
 	return config.NextConfiguration
@@ -49,10 +49,10 @@ func (machine *Machine) getOperationsBranchFromCurrentSymbol(config Configuratio
 
 	var operations []Operation
 	symbol := machine.Head.Read()
-	hasSymbol := symbol != ""
+	hasSymbol := symbol != 0
 
 	if hasSymbol {
-		operations = config.Operations[symbol]
+		operations = config.Operations[string(symbol)]
 		if operations == nil {
 			operations = config.Operations["Any"]
 		}
@@ -79,5 +79,5 @@ func (machine *Machine) printState() {
 	if machine.currentConfig == 0 {
 		configString = "End"
 	}
-	fmt.Printf("(config: %v) %v:%v \n", configString, machine.Head.Read(), machine.Head.Tape)
+	fmt.Printf("(config: %s) %c:%c \n", configString, machine.Head.Read(), machine.Head.Tape)
 }

@@ -4,7 +4,7 @@ import "errors"
 
 // Head is the main part of the machine, who navigates the machine, reads and write
 type Head struct {
-	Tape           []string
+	Tape           []rune
 	cursorPosition int
 }
 
@@ -24,15 +24,15 @@ func (head *Head) MoveRight() {
 	head.cursorPosition += 1
 }
 
-func (head *Head) Read() string {
+func (head *Head) Read() rune {
 	return head.Tape[head.cursorPosition]
 }
 
-func (head *Head) Write(symbol string) {
+func (head *Head) Write(symbol rune) {
 	head.Tape[head.cursorPosition] = symbol
 }
 
 func (head *Head) extendTape(sizeAdded int) {
-	addedItems := make([]string, sizeAdded)
+	addedItems := make([]rune, sizeAdded)
 	head.Tape = append(head.Tape, addedItems...)
 }
